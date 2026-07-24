@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg:#06070d; --surface:#12172a; --surface-2:#0b0f20; --fill:rgba(255,255,255,0.04);
+    --line:rgba(120,150,255,0.2); --fg:#ffffff; --fg2:#d8dfef; --fg3:#aab4cd;
+    --eyebrow:#a9c4ff; --nav:#c3ccdf; --chip:rgba(255,255,255,0.05); --chip-line:rgba(120,150,255,0.3);
+    --glow-a:rgba(60,120,255,0.42); --glow-b:rgba(150,70,255,0.34); --glow-c:rgba(0,225,255,0.22);
+    --grid:rgba(120,150,220,0.06);
+  }
+  [data-theme="claro"] {
+    --bg:#e9edf6; --surface:#ffffff; --surface-2:#f4f7fd; --fill:rgba(20,40,90,0.05);
+    --line:rgba(30,55,120,0.16); --fg:#0a0f1e; --fg2:#2a3450; --fg3:#55617d;
+    --eyebrow:#2f6bff; --nav:#3a4560; --chip:rgba(20,40,90,0.04); --chip-line:rgba(30,55,120,0.22);
+    --glow-a:rgba(60,120,255,0.22); --glow-b:rgba(150,70,255,0.18); --glow-c:rgba(0,225,255,0.14);
+    --grid:rgba(40,70,140,0.07);
+  }
+  body { background: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #6aa0ff; }
+  @keyframes stob-drift { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(4%,-3%) scale(1.15);} 100%{transform:translate(0,0) scale(1);} }
+  @keyframes stob-float { 0%{transform:translateY(0);opacity:0.4;} 50%{transform:translateY(-26px);opacity:1;} 100%{transform:translateY(0);opacity:0.4;} }
+  @keyframes stob-grid { 0%{background-position:0 0;} 100%{background-position:0 60px;} }
+  @keyframes stob-pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+  @keyframes stob-shimmer { 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+  @keyframes stob-ring { 0%{box-shadow:0 0 0 0 rgba(0,225,255,0.55);} 70%{box-shadow:0 0 0 14px rgba(0,225,255,0);} 100%{box-shadow:0 0 0 0 rgba(0,225,255,0);} }
+  @keyframes stob-sweep { 0%{transform:translateX(-120%);} 60%,100%{transform:translateX(220%);} }
+</style>
+</helmet>
+<div ref="{{ setRoot }}" data-theme="{{ themeAttr }}" style="font-family: 'Manrope', system-ui, sans-serif; color: var(--fg); background: var(--bg); overflow-x: hidden; position: relative; transition: background 0.5s ease, color 0.5s ease;">
+
+  <!-- cursor glow -->
+  <div ref="{{ setCursor }}" style="position: fixed; top: 0; left: 0; width: 460px; height: 460px; margin: -230px 0 0 -230px; border-radius: 50%; pointer-events: none; z-index: 60; background: radial-gradient(circle, rgba(60,120,255,0.16), rgba(0,225,255,0.08) 40%, transparent 68%); mix-blend-mode: screen; opacity: 0; transition: opacity 0.4s ease; will-change: transform;"></div>
+
+  <!-- ===================== HERO ===================== -->
+  <section style="position: relative; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <div style="position: absolute; inset: 0; z-index: 0; overflow: hidden;">
+      <div style="position: absolute; top: -20%; left: -10%; width: 55vw; height: 55vw; border-radius: 50%; background: radial-gradient(circle, var(--glow-a), transparent 62%); filter: blur(30px); animation: stob-drift 16s ease-in-out infinite;"></div>
+      <div style="position: absolute; bottom: -25%; right: -12%; width: 50vw; height: 50vw; border-radius: 50%; background: radial-gradient(circle, var(--glow-b), transparent 62%); filter: blur(30px); animation: stob-drift 20s ease-in-out infinite reverse;"></div>
+      <div style="position: absolute; top: 30%; right: 20%; width: 30vw; height: 30vw; border-radius: 50%; background: radial-gradient(circle, var(--glow-c), transparent 62%); filter: blur(30px); animation: stob-drift 24s ease-in-out infinite;"></div>
+      <div style="position: absolute; inset: 0; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 60px 60px; animation: stob-grid 8s linear infinite; mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 80%);"></div>
+      <div ref="{{ setParticles }}" style="position: absolute; inset: 0;"></div>
+    </div>
+
+    <nav style="position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px 14px 20px; max-width: 1320px; margin: 18px auto 0; width: calc(100% - 32px); border-radius: 18px; border: 1px solid var(--chip-line); background: var(--surface); box-shadow: 0 10px 40px rgba(10,20,50,0.28); backdrop-filter: blur(14px);">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, #3c78ff, #9a46ff); box-shadow: 0 0 22px rgba(60,120,255,0.6); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-weight: 700; color: #fff; font-size: 17px;">S</div>
+        <div style="display:flex; flex-direction:column; line-height:1.05;">
+          <span style="font-family: 'Space Grotesk'; font-weight: 700; letter-spacing: 0.3px; color: var(--fg); font-size: 18px;">STOB Dynamics</span>
+          <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--eyebrow);">Software a medida</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 26px; font-size: 14px; font-weight: 600; color: var(--nav);">
+        <a href="#nosotros" style="transition: color 0.25s, letter-spacing 0.25s;" style-hover="letter-spacing: 0.6px;">Nosotros</a>
+        <a href="#soluciones" style="transition: color 0.25s, letter-spacing 0.25s;" style-hover="letter-spacing: 0.6px;">Soluciones</a>
+        <a href="#personalizacion" style="transition: color 0.25s, letter-spacing 0.25s;" style-hover="letter-spacing: 0.6px;">Personalización</a>
+        <button onClick="{{ toggleTheme }}" title="Cambiar modo claro / oscuro" style="display:flex; align-items:center; gap:6px; cursor:pointer; width:38px; height:38px; justify-content:center; border-radius: 11px; border: 1px solid var(--chip-line); color: var(--fg); background: var(--chip); font-family:'Manrope'; font-weight:600; font-size:15px; transition: transform 0.25s, background 0.25s;" style-hover="transform: translateY(-2px);">{{ themeIcon }}</button>
+        <a href="https://wa.me/18497108250?text=Hola%20STOB%20Dynamics%2C%20quiero%20solicitar%20una%20consulta%20sobre%20un%20sistema%20personalizado." target="_blank" style="position:relative; display:flex; align-items:center; gap:9px; padding: 11px 20px; border-radius: 12px; color:#fff; background: linear-gradient(120deg, #3c78ff, #9a46ff); box-shadow: 0 8px 24px rgba(60,120,255,0.45); font-family:'Space Grotesk'; font-weight:700; font-size:14px; transition: transform 0.25s ease, box-shadow 0.3s;" style-hover="transform: translateY(-2px); box-shadow: 0 12px 34px rgba(90,120,255,0.6);">
+          <span style="width:9px; height:9px; border-radius:50%; background:#00e1ff; box-shadow:0 0 8px #00e1ff; animation: stob-ring 2s ease-out infinite;"></span>
+          Solicitar consulta
+        </a>
+      </div>
+    </nav>
+
+    <div id="inicio" style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px clamp(20px,6vw,80px) 90px; max-width: 1120px; margin: 0 auto;">
+      <div data-reveal style="display: inline-flex; align-items: center; gap: 9px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--chip); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 34px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #00e1ff; box-shadow: 0 0 10px #00e1ff; animation: stob-pulse 2s ease-in-out infinite;"></span>
+        Agencia de desarrollo de software
+      </div>
+      <h1 data-reveal style="font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(52px, 9vw, 118px); line-height: 0.96; letter-spacing: -3px; color: var(--fg); margin-bottom: 34px;">
+        STOB <span style="background: linear-gradient(90deg, #6aa0ff, #00e1ff, #b98bff, #6aa0ff); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: stob-shimmer 6s linear infinite;">Dynamics</span>
+      </h1>
+
+      <!-- SLOGAN destacado -->
+      <div data-reveal style="position: relative; max-width: 880px; margin: 0 auto 46px; padding: 36px clamp(28px,5vw,58px); border-radius: 24px; border: 1px solid var(--chip-line); background: linear-gradient(135deg, rgba(60,120,255,0.14), rgba(150,70,255,0.10)); box-shadow: 0 20px 60px rgba(20,40,120,0.28); overflow: hidden; transition: transform 0.25s ease;">
+        <div style="position:absolute; top:-30px; left:22px; font-family:'Space Grotesk'; font-size:120px; line-height:1; color:rgba(122,170,255,0.22); font-weight:700;">“</div>
+        <p style="position: relative; font-family: 'Space Grotesk'; font-weight: 600; font-size: clamp(23px, 3.5vw, 40px); line-height: 1.28; color: var(--fg); text-wrap: balance;">
+          La tecnología no reemplaza, sino que
+          <span style="background: linear-gradient(90deg, #6aa0ff, #00e1ff, #b98bff, #6aa0ff); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: stob-shimmer 5s linear infinite; font-weight: 700;">impulsa y mejora</span>
+          la carga de trabajo.
+        </p>
+      </div>
+
+      <a data-reveal href="#soluciones" style="position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 18px 38px; border-radius: 999px; font-family: 'Space Grotesk'; font-weight: 600; font-size: 17px; color: #fff; background: linear-gradient(120deg, #3c78ff, #9a46ff); box-shadow: 0 12px 40px rgba(60,120,255,0.5); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s;" style-hover="transform: translateY(-4px) scale(1.03); box-shadow: 0 20px 55px rgba(90,120,255,0.65);">
+        Descubre nuestras soluciones
+        <span style="font-size: 20px; line-height: 1;">→</span>
+      </a>
+
+      <div data-reveal style="display: flex; gap: clamp(24px,5vw,64px); margin-top: 74px; flex-wrap: wrap; justify-content: center;">
+        <div style="text-align: center;"><div style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 34px; color: var(--fg);">3+</div><div style="font-size: 13px; color: var(--fg3); letter-spacing: 0.5px;">Sistemas en producción</div></div>
+        <div style="width: 1px; background: var(--line);"></div>
+        <div style="text-align: center;"><div style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 34px; color: var(--fg);">100%</div><div style="font-size: 13px; color: var(--fg3); letter-spacing: 0.5px;">Enfoque en eficiencia</div></div>
+        <div style="width: 1px; background: var(--line);"></div>
+        <div style="text-align: center;"><div style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 34px; color: var(--fg);">24/7</div><div style="font-size: 13px; color: var(--fg3); letter-spacing: 0.5px;">Automatización real</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUIÉNES SOMOS ===================== -->
+  <section id="nosotros" style="position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: clamp(80px,12vw,150px) clamp(20px,6vw,80px); display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: clamp(40px,6vw,90px); align-items: center;">
+    <div>
+      <div data-reveal style="font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 20px;">Quiénes somos</div>
+      <h2 data-reveal data-words style="font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(34px,5vw,54px); line-height: 1.05; letter-spacing: -1.5px; color: var(--fg); margin-bottom: 28px;">Jóvenes emprendedores que convierten procesos en sistemas.</h2>
+      <p data-reveal style="font-size: 17px; line-height: 1.8; color: var(--fg2); margin-bottom: 20px;">Somos un equipo informático de jóvenes emprendedores: técnicos en informática y estudiantes de medio pensum de la <strong style="color:var(--fg);">Universidad UTESA</strong>. Combinamos la energía de una nueva generación con una base técnica sólida y experiencia desarrollando soluciones reales.</p>
+      <p data-reveal style="font-size: 17px; line-height: 1.8; color: var(--fg2);">Nuestra misión es buscar y crear soluciones automatizadas, dinámicas y eficientes para distintos escenarios empresariales. No venimos a reemplazar equipos: venimos a <strong style="color:var(--fg);">impulsar su trabajo</strong>, eliminar tareas repetitivas y darle a cada negocio la capacidad técnica para escalar.</p>
+      <div data-reveal style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px;">
+        <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--chip); font-size: 13px; font-weight: 600; color: var(--fg2);">Automatización</span>
+        <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--chip); font-size: 13px; font-weight: 600; color: var(--fg2);">Eficiencia</span>
+        <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--chip); font-size: 13px; font-weight: 600; color: var(--fg2);">Software a medida</span>
+      </div>
+    </div>
+    <div data-reveal style="position: relative;">
+      <div style="position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(160deg, rgba(60,120,255,0.14), rgba(150,70,255,0.10)); padding: 40px; box-shadow: 0 30px 80px rgba(10,20,50,0.28);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+          <div style="padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+            <div style="font-family:'Space Grotesk'; font-size: 30px; font-weight:700; color:#00b3d4;">{ }</div>
+            <div style="font-size: 13px; color:var(--fg2); margin-top: 8px;">Código limpio y mantenible</div>
+          </div>
+          <div style="padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+            <div style="font-family:'Space Grotesk'; font-size: 30px; font-weight:700; color:#3c78ff;">⚡</div>
+            <div style="font-size: 13px; color:var(--fg2); margin-top: 8px;">Procesos más rápidos</div>
+          </div>
+          <div style="padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+            <div style="font-family:'Space Grotesk'; font-size: 30px; font-weight:700; color:#9a46ff;">∞</div>
+            <div style="font-size: 13px; color:var(--fg2); margin-top: 8px;">Escalable a tu medida</div>
+          </div>
+          <div style="padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+            <div style="font-family:'Space Grotesk'; font-size: 30px; font-weight:700; color:#00b3d4;">↗</div>
+            <div style="font-size: 13px; color:var(--fg2); margin-top: 8px;">Impulsa a tu equipo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SOLUCIONES / PORTAFOLIO ===================== -->
+  <section id="soluciones" style="position: relative; z-index: 2; max-width: 1300px; margin: 0 auto; padding: clamp(40px,7vw,90px) clamp(20px,6vw,80px) clamp(90px,12vw,150px);">
+    <div style="text-align: center; max-width: 660px; margin: 0 auto 64px;">
+      <div data-reveal style="font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 18px;">Nuestra experiencia</div>
+      <h2 data-reveal data-words style="font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(34px,5vw,54px); line-height: 1.05; letter-spacing: -1.5px; color: var(--fg); margin-bottom: 18px;">Sistemas que ya trabajan por nuestros clientes</h2>
+      <p data-reveal style="font-size: 17px; line-height: 1.7; color: var(--fg2);">Vistas reales de los sistemas que hemos construido y puesto en marcha para automatizar operaciones empresariales.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px;">
+
+      <!-- ===== CARD 1: NÓMINA ===== -->
+      <div data-reveal ref="{{ setCard }}" title="Prompt IA sugerido: UI design of a modern payroll management dashboard, sleek dark mode, charts, employee salary data, Dribbble style" style="position: relative; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s, border-color 0.4s;" style-hover="transform: translateY(-10px); box-shadow: 0 30px 70px rgba(20,40,120,0.4); border-color: var(--chip-line);">
+        <div style="position: relative; aspect-ratio: 16/11; overflow: hidden; background: radial-gradient(120% 100% at 0% 0%, rgba(60,120,255,0.16), transparent 60%), #0a0e1c; padding: 16px;">
+          <div class="stob-shot" style="height:100%; border-radius: 12px; background: linear-gradient(180deg,#11162a,#0b0f20); border: 1px solid rgba(120,150,255,0.14); padding: 14px; display:flex; flex-direction:column; gap:11px; transition: transform 0.6s ease;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:#3c78ff;"></span><span style="font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:13px;">Nómina · Julio 2026</span></div>
+              <span style="font-size:10px;font-weight:700;color:#0a1020;background:#00e1ff;padding:3px 9px;border-radius:999px;">PROCESADO</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:9px;"><div style="font-size:9px;color:#9fb0d4;">Total</div><div style="font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;">$1.24M</div></div>
+              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:9px;"><div style="font-size:9px;color:#9fb0d4;">Empleados</div><div style="font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;">148</div></div>
+              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:9px;"><div style="font-size:9px;color:#9fb0d4;">Deducciones</div><div style="font-family:'Space Grotesk';font-weight:700;color:#7fa5ff;font-size:15px;">$182K</div></div>
+            </div>
+            <div style="flex:1;display:flex;align-items:flex-end;gap:6px;padding-top:4px;">
+              <div style="flex:1;height:38%;background:linear-gradient(180deg,#3c78ff,#1e3fa0);border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;height:62%;background:linear-gradient(180deg,#3c78ff,#1e3fa0);border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;height:48%;background:linear-gradient(180deg,#3c78ff,#1e3fa0);border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;height:78%;background:linear-gradient(180deg,#00e1ff,#0088aa);border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;height:55%;background:linear-gradient(180deg,#3c78ff,#1e3fa0);border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1;height:88%;background:linear-gradient(180deg,#9a46ff,#5a1fb0);border-radius:4px 4px 0 0;"></div>
+            </div>
+          </div>
+          <div style="position: absolute; bottom: 26px; left: 26px; padding: 6px 12px; border-radius: 999px; background: rgba(6,10,22,0.75); backdrop-filter: blur(8px); border: 1px solid rgba(120,150,255,0.32); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #bcd2ff;">Recursos Humanos</div>
+        </div>
+        <div style="padding: 26px;">
+          <h3 style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 23px; color: var(--fg); margin-bottom: 12px;">Sistemas de Nóminas</h3>
+          <p style="font-size: 15px; line-height: 1.65; color: var(--fg2);">Cálculo automático de salarios, deducciones y reportes. Menos hojas de cálculo, cero errores manuales.</p>
+        </div>
+        <div class="stob-card-bar" style="height: 3px; background: linear-gradient(90deg, #3c78ff, #00e1ff, #9a46ff); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;"></div>
+      </div>
+
+      <!-- ===== CARD 2: PONCHEO ===== -->
+      <div data-reveal ref="{{ setCard }}" title="Prompt IA sugerido: UI design of a time tracking and employee punch clock system, modern web app, schedule view, clean typography" style="position: relative; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s, border-color 0.4s;" style-hover="transform: translateY(-10px); box-shadow: 0 30px 70px rgba(20,40,120,0.4); border-color: var(--chip-line);">
+        <div style="position: relative; aspect-ratio: 16/11; overflow: hidden; background: radial-gradient(120% 100% at 0% 0%, rgba(0,225,255,0.16), transparent 60%), #0a0e1c; padding: 16px;">
+          <div class="stob-shot" style="height:100%; border-radius: 12px; background: linear-gradient(180deg,#11162a,#0b0f20); border: 1px solid rgba(120,150,255,0.14); padding: 14px; display:flex; flex-direction:column; gap:10px; transition: transform 0.6s ease;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:13px;">Poncheo · Hoy</span>
+              <span style="font-family:'Space Grotesk';font-weight:700;color:#00e1ff;font-size:16px;">08:42</span>
+            </div>
+            <div style="display:flex;gap:5px;">
+              <div style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:rgba(60,120,255,0.25);font-size:9px;color:#cfe0ff;font-weight:700;">L</div>
+              <div style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:rgba(0,225,255,0.25);font-size:9px;color:#d6f7ff;font-weight:700;">M</div>
+              <div style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:rgba(255,255,255,0.06);font-size:9px;color:#9fb0d4;font-weight:700;">M</div>
+              <div style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:rgba(255,255,255,0.06);font-size:9px;color:#9fb0d4;font-weight:700;">J</div>
+              <div style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:rgba(255,255,255,0.06);font-size:9px;color:#9fb0d4;font-weight:700;">V</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border-radius:8px;padding:7px 9px;"><span style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#3c78ff,#9a46ff);"></span><span style="flex:1;font-size:11px;color:#e6ecfb;">Empleado #1042</span><span style="font-size:10px;color:#00e1ff;font-weight:700;">Entrada 08:01</span></div>
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border-radius:8px;padding:7px 9px;"><span style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#00e1ff,#3c78ff);"></span><span style="flex:1;font-size:11px;color:#e6ecfb;">Empleado #0917</span><span style="font-size:10px;color:#00e1ff;font-weight:700;">Entrada 08:05</span></div>
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border-radius:8px;padding:7px 9px;"><span style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#9a46ff,#3c78ff);"></span><span style="flex:1;font-size:11px;color:#e6ecfb;">Empleado #1180</span><span style="font-size:10px;color:#ffb454;font-weight:700;">Tarde 09:12</span></div>
+            </div>
+          </div>
+          <div style="position: absolute; bottom: 26px; left: 26px; padding: 6px 12px; border-radius: 999px; background: rgba(6,10,22,0.75); backdrop-filter: blur(8px); border: 1px solid rgba(120,150,255,0.32); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #bcd2ff;">Control horario</div>
+        </div>
+        <div style="padding: 26px;">
+          <h3 style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 23px; color: var(--fg); margin-bottom: 12px;">Sistemas de Poncheo y Asistencia</h3>
+          <p style="font-size: 15px; line-height: 1.65; color: var(--fg2);">Registro de entradas y salidas en tiempo real, turnos y reportes de asistencia con vista de calendario.</p>
+        </div>
+        <div class="stob-card-bar" style="height: 3px; background: linear-gradient(90deg, #3c78ff, #00e1ff, #9a46ff); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;"></div>
+      </div>
+
+      <!-- ===== CARD 3: FACTURACIÓN ===== -->
+      <div data-reveal ref="{{ setCard }}" title="Prompt IA sugerido: UI design of a modern billing and invoicing software, list of transactions, total revenue charts, clean layout" style="position: relative; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s, border-color 0.4s;" style-hover="transform: translateY(-10px); box-shadow: 0 30px 70px rgba(20,40,120,0.4); border-color: var(--chip-line);">
+        <div style="position: relative; aspect-ratio: 16/11; overflow: hidden; background: radial-gradient(120% 100% at 0% 0%, rgba(150,70,255,0.18), transparent 60%), #0a0e1c; padding: 16px;">
+          <div class="stob-shot" style="height:100%; border-radius: 12px; background: linear-gradient(180deg,#11162a,#0b0f20); border: 1px solid rgba(120,150,255,0.14); padding: 14px; display:flex; flex-direction:column; gap:10px; transition: transform 0.6s ease;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div><div style="font-size:10px;color:#9fb0d4;">Ingresos del mes</div><div style="font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:19px;">$86,420</div></div>
+              <span style="font-size:10px;font-weight:700;color:#0a1020;background:#00e1ff;padding:3px 8px;border-radius:999px;">+12%</span>
+            </div>
+            <div style="height:42px;display:flex;align-items:flex-end;gap:3px;">
+              <div style="flex:1;height:30%;background:rgba(154,70,255,0.55);border-radius:3px;"></div>
+              <div style="flex:1;height:50%;background:rgba(154,70,255,0.6);border-radius:3px;"></div>
+              <div style="flex:1;height:42%;background:rgba(154,70,255,0.6);border-radius:3px;"></div>
+              <div style="flex:1;height:68%;background:rgba(60,120,255,0.7);border-radius:3px;"></div>
+              <div style="flex:1;height:58%;background:rgba(60,120,255,0.7);border-radius:3px;"></div>
+              <div style="flex:1;height:82%;background:rgba(0,225,255,0.8);border-radius:3px;"></div>
+              <div style="flex:1;height:100%;background:linear-gradient(180deg,#00e1ff,#3c78ff);border-radius:3px;"></div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border-radius:8px;padding:7px 9px;"><span style="font-size:11px;color:#e6ecfb;">Factura #A-2041</span><span style="font-size:11px;color:#00e1ff;font-weight:700;">$3,200 · Pagada</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border-radius:8px;padding:7px 9px;"><span style="font-size:11px;color:#e6ecfb;">Factura #A-2042</span><span style="font-size:11px;color:#ffb454;font-weight:700;">$1,850 · Pendiente</span></div>
+            </div>
+          </div>
+          <div style="position: absolute; bottom: 26px; left: 26px; padding: 6px 12px; border-radius: 999px; background: rgba(6,10,22,0.75); backdrop-filter: blur(8px); border: 1px solid rgba(120,150,255,0.32); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #bcd2ff;">Finanzas</div>
+        </div>
+        <div style="padding: 26px;">
+          <h3 style="font-family: 'Space Grotesk'; font-weight: 700; font-size: 23px; color: var(--fg); margin-bottom: 12px;">Sistemas de Facturación</h3>
+          <p style="font-size: 15px; line-height: 1.65; color: var(--fg2);">Emisión de facturas, seguimiento de transacciones y gráficos de ingresos en un panel limpio y claro.</p>
+        </div>
+        <div class="stob-card-bar" style="height: 3px; background: linear-gradient(90deg, #3c78ff, #00e1ff, #9a46ff); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== PERSONALIZACIÓN ===================== -->
+  <section id="personalizacion" style="position: relative; z-index: 2; max-width: 1300px; margin: 0 auto; padding: clamp(20px,4vw,50px) clamp(20px,6vw,80px) clamp(70px,10vw,120px);">
+    <div data-reveal style="position: relative; overflow: hidden; border-radius: 28px; border: 1px solid var(--chip-line); background: linear-gradient(135deg, rgba(60,120,255,0.16), rgba(150,70,255,0.12)); padding: clamp(40px,6vw,72px); display: grid; grid-template-columns: repeat(auto-fit, minmax(360px,1fr)); gap: clamp(36px,5vw,64px); align-items: center;">
+      <div style="position:absolute; top:-30%; right:-10%; width:40vw; height:40vw; border-radius:50%; background: radial-gradient(circle, rgba(0,225,255,0.2), transparent 62%); filter: blur(40px);"></div>
+      <div style="position: relative;">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 18px;">Personalización total</div>
+        <h2 data-words style="font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(34px,5vw,64px); line-height: 1.02; letter-spacing: -2px; color: var(--fg); margin-bottom: 22px; overflow-wrap: anywhere;">Tu sistema, tu personalización.</h2>
+        <p style="font-size: 17.5px; line-height: 1.75; color: var(--fg2); max-width: 520px;">Tenemos <strong style="color:var(--fg);">completa disposición para construir sistemas totalmente personalizados</strong>. No adaptamos tu negocio a un software genérico: diseñamos el software exacto que tu operación necesita, con los módulos, reglas y flujos que tú decidas.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:30px;">
+          <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--fg2);">A tu medida</span>
+          <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--fg2);">Módulos flexibles</span>
+          <span style="padding: 9px 16px; border-radius: 999px; border: 1px solid var(--chip-line); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--fg2);">Soporte cercano</span>
+        </div>
+      </div>
+      <div style="position: relative; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:flex-start; gap:14px; padding:20px; border-radius:16px; background: var(--surface); border:1px solid var(--line);"><span style="font-family:'Space Grotesk'; font-weight:700; color:#3c78ff; font-size:22px;">01</span><div><div style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:16px; margin-bottom:4px;">Escuchamos tu proceso</div><div style="font-size:14px; color:var(--fg2); line-height:1.55;">Analizamos cómo trabajas hoy y qué quieres automatizar.</div></div></div>
+        <div style="display:flex; align-items:flex-start; gap:14px; padding:20px; border-radius:16px; background: var(--surface); border:1px solid var(--line);"><span style="font-family:'Space Grotesk'; font-weight:700; color:#00b3d4; font-size:22px;">02</span><div><div style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:16px; margin-bottom:4px;">Diseñamos a tu medida</div><div style="font-size:14px; color:var(--fg2); line-height:1.55;">Definimos módulos, reglas y pantallas según tus necesidades.</div></div></div>
+        <div style="display:flex; align-items:flex-start; gap:14px; padding:20px; border-radius:16px; background: var(--surface); border:1px solid var(--line);"><span style="font-family:'Space Grotesk'; font-weight:700; color:#9a46ff; font-size:22px;">03</span><div><div style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:16px; margin-bottom:4px;">Lo hacemos crecer contigo</div><div style="font-size:14px; color:var(--fg2); line-height:1.55;">Tu sistema evoluciona y se ajusta a medida que tu negocio escala.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA STRIP ===================== -->
+  <section id="contacto" style="position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 0 clamp(20px,6vw,80px);">
+    <div data-reveal style="position: relative; overflow: hidden; border-radius: 28px; padding: clamp(48px,7vw,80px); text-align: center; background: linear-gradient(120deg, rgba(60,120,255,0.2), rgba(150,70,255,0.16)); border: 1px solid var(--chip-line);">
+      <div style="position:absolute; inset:0; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(ellipse 70% 100% at 50% 50%, #000, transparent);"></div>
+      <div style="position: relative;">
+        <h2 style="font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(28px,4.5vw,46px); line-height: 1.1; letter-spacing: -1px; color: var(--fg); margin-bottom: 18px;">Listos para automatizar tu negocio</h2>
+        <p style="font-size: 17px; color: var(--fg2); max-width: 540px; margin: 0 auto 36px;">Cuéntanos tu proceso y diseñamos el sistema que lo impulsa. Escríbenos por WhatsApp y recibe tu consulta.</p>
+        <a href="https://wa.me/18497108250?text=Hola%20STOB%20Dynamics%2C%20quiero%20solicitar%20una%20consulta%20sobre%20un%20sistema%20personalizado." target="_blank" style="position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 12px; padding: 20px 44px; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 19px; color: #fff; background: linear-gradient(120deg, #3c78ff, #9a46ff); box-shadow: 0 14px 44px rgba(60,120,255,0.55); transition: transform 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s;" style-hover="transform: translateY(-4px) scale(1.03); box-shadow: 0 20px 60px rgba(90,120,255,0.7);">
+          <span style="position:absolute; top:0; left:0; width:40%; height:100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent); animation: stob-sweep 3.2s ease-in-out infinite;"></span>
+          <span style="position:relative; width:11px; height:11px; border-radius:50%; background:#00e1ff; box-shadow:0 0 10px #00e1ff; animation: stob-ring 2s ease-out infinite;"></span>
+          <span style="position:relative;">Solicitar mi consulta gratis</span>
+        </a>
+        <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:22px; font-size:15px; font-weight:600; color:var(--fg2);">
+          <span style="font-size:18px;">📞</span>
+          <a href="tel:+18497108250" style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg);">849-710-8250</a>
+          <span style="color:var(--fg3);">· Respuesta rápida por WhatsApp</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer style="position: relative; z-index: 2; margin-top: clamp(70px,10vw,120px); border-top: 1px solid var(--chip-line); background: linear-gradient(180deg, rgba(60,120,255,0.08), transparent 55%); overflow: hidden;">
+    <div style="height: 3px; background: linear-gradient(90deg, #3c78ff, #00e1ff, #9a46ff);"></div>
+    <div style="position: absolute; bottom: -6%; left: 50%; transform: translateX(-50%); font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(90px, 20vw, 320px); line-height: 1; color: var(--fg); opacity: 0.035; white-space: nowrap; pointer-events: none; letter-spacing: -6px;">STOB</div>
+
+    <div style="position: relative; max-width: 1300px; margin: 0 auto; padding: clamp(56px,7vw,88px) clamp(20px,6vw,80px) 0;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: clamp(32px,4vw,64px); padding-bottom: 48px;">
+        <div style="min-width: 240px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <div style="width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(135deg, #3c78ff, #9a46ff); box-shadow: 0 0 22px rgba(60,120,255,0.55); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-weight: 700; color: #fff; font-size: 18px;">S</div>
+            <span style="font-family: 'Space Grotesk'; font-weight: 700; color: var(--fg); font-size: 20px;">STOB Dynamics</span>
+          </div>
+          <p style="font-size: 15px; line-height: 1.65; color: var(--fg2); max-width: 320px; margin-bottom: 24px;">Automatizamos, dinamizamos y hacemos más eficiente tu operación con software hecho totalmente a tu medida.</p>
+          <a href="https://wa.me/18497108250?text=Hola%20STOB%20Dynamics%2C%20quiero%20una%20consulta." target="_blank" style="display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; border-radius: 12px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; color: #fff; background: linear-gradient(120deg, #3c78ff, #9a46ff); box-shadow: 0 10px 30px rgba(60,120,255,0.4); transition: transform 0.25s ease, box-shadow 0.3s;" style-hover="transform: translateY(-3px); box-shadow: 0 16px 40px rgba(90,120,255,0.55);"><span style="width:9px;height:9px;border-radius:50%;background:#00e1ff;box-shadow:0 0 8px #00e1ff;animation: stob-ring 2s ease-out infinite;"></span>Escríbenos por WhatsApp</a>
+        </div>
+
+        <div>
+          <div style="font-family:'Space Grotesk'; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 18px;">Navegación</div>
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; color: var(--fg2);">
+            <a href="#inicio" style="transition: color 0.25s, transform 0.25s;" style-hover="transform: translateX(5px);">Inicio</a>
+            <a href="#nosotros" style="transition: color 0.25s, transform 0.25s;" style-hover="transform: translateX(5px);">Quiénes somos</a>
+            <a href="#soluciones" style="transition: color 0.25s, transform 0.25s;" style-hover="transform: translateX(5px);">Soluciones</a>
+            <a href="#personalizacion" style="transition: color 0.25s, transform 0.25s;" style-hover="transform: translateX(5px);">Personalización</a>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-family:'Space Grotesk'; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--eyebrow); margin-bottom: 18px;">Contáctanos</div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="tel:+18497108250" style="display:flex; align-items:center; gap:10px; transition: transform 0.25s;" style-hover="transform: translateX(5px);"><span style="font-size:16px;">📞</span><span><span style="display:block; font-size:11px; color:var(--fg3);">Llámanos</span><span style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:15px;">849-710-8250</span></span></a>
+            <a href="https://wa.me/18497108250" target="_blank" style="display:flex; align-items:center; gap:10px; transition: transform 0.25s;" style-hover="transform: translateX(5px);"><span style="font-size:16px;">💬</span><span><span style="display:block; font-size:11px; color:var(--fg3);">WhatsApp</span><span style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:15px;">Chat directo</span></span></a>
+            <div style="display:flex; align-items:center; gap:10px;"><span style="font-size:16px;">🎓</span><span><span style="display:block; font-size:11px; color:var(--fg3);">Formados en</span><span style="font-family:'Space Grotesk'; font-weight:700; color:var(--fg); font-size:15px;">Universidad UTESA</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 24px 0 40px; border-top: 1px solid var(--line); font-size: 13px; color: var(--fg3);">
+        <span>© 2026 STOB Dynamics. Todos los derechos reservados.</span>
+        <span style="display:flex; align-items:center; gap:8px;"><span style="width:7px;height:7px;border-radius:50%;background:#00e1ff;box-shadow:0 0 8px #00e1ff;animation: stob-pulse 2s ease-in-out infinite;"></span>Disponibles para nuevos proyectos</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:720},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;oscuro&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;oscuro&quot;,&quot;claro&quot;],&quot;section&quot;:&quot;Estilo&quot;},&quot;enableParticles&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Fondo&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null };
+
+  getTheme() {
+    return this.state.theme || this.props.theme || "oscuro";
+  }
+
+  renderVals() {
+    const theme = this.getTheme();
+    return {
+      themeAttr: theme,
+      themeLabel: theme === "claro" ? "☀ Claridad" : "☾ Oscuro",
+      themeIcon: theme === "claro" ? "☀" : "☾",
+      toggleTheme: () => this.setState({ theme: this.getTheme() === "claro" ? "oscuro" : "claro" }),
+      setRoot: (el) => { this.root = el; },
+      setParticles: (el) => { this.particles = el; },
+      setCursor: (el) => { this.cursor = el; },
+      setMagnetic: (el) => {
+        if (!el || el.__mag) return;
+        el.__mag = true;
+        el.addEventListener("mousemove", (e) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left - r.width / 2) * 0.18;
+          const y = (e.clientY - r.top - r.height / 2) * 0.28;
+          el.style.transform = "translate(" + x + "px," + y + "px)";
+        });
+        el.addEventListener("mouseleave", () => { el.style.transform = "translate(0,0)"; });
+      },
+      setCard: (el) => {
+        if (!el) return;
+        const bar = el.querySelector(".stob-card-bar");
+        const shot = el.querySelector(".stob-shot");
+        el.addEventListener("mouseenter", () => { if (bar) bar.style.transform = "scaleX(1)"; if (shot) shot.style.transform = "scale(1.04)"; });
+        el.addEventListener("mouseleave", () => { if (bar) bar.style.transform = "scaleX(0)"; if (shot) shot.style.transform = "scale(1)"; });
+      }
+    };
+  }
+
+  componentDidMount() {
+    setTimeout(() => { this.initReveal(); this.initWords(); this.initParticles(); this.initCursor(); }, 60);
+  }
+
+  initCursor() {
+    if (!this.cursor) return;
+    let tx = window.innerWidth / 2, ty = window.innerHeight / 2, cx = tx, cy = ty;
+    window.addEventListener("mousemove", (e) => {
+      tx = e.clientX; ty = e.clientY;
+      this.cursor.style.opacity = "1";
+    });
+    const loop = () => {
+      cx += (tx - cx) * 0.15; cy += (ty - cy) * 0.15;
+      this.cursor.style.transform = "translate(" + cx + "px," + cy + "px)";
+      requestAnimationFrame(loop);
+    };
+    loop();
+  }
+
+  initWords() {
+    if (!this.root) return;
+    this.root.querySelectorAll("[data-words]").forEach((el) => {
+      const words = el.textContent.trim().split(/\s+/);
+      el.textContent = "";
+      words.forEach((w) => {
+        const span = document.createElement("span");
+        span.textContent = w;
+        span.style.cssText = "display:inline-block;opacity:0;transform:translateY(0.5em);transition:opacity 0.6s ease,transform 0.6s cubic-bezier(.2,.8,.2,1);";
+        el.appendChild(span);
+        el.appendChild(document.createTextNode(" "));
+      });
+      const spans = Array.from(el.querySelectorAll("span"));
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            spans.forEach((s, i) => { s.style.transitionDelay = (i * 55) + "ms"; s.style.opacity = "1"; s.style.transform = "translateY(0)"; });
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.2 });
+      io.observe(el);
+    });
+  }
+
+  initReveal() {
+    if (!this.root) return;
+    const els = Array.from(this.root.querySelectorAll("[data-reveal]"));
+    els.forEach((el) => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(40px)";
+      el.style.transition = "opacity 0.8s cubic-bezier(.2,.8,.2,1), transform 0.8s cubic-bezier(.2,.8,.2,1)";
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          const el = e.target;
+          const sibs = Array.from(el.parentElement ? el.parentElement.querySelectorAll(":scope > [data-reveal]") : [el]);
+          const idx = Math.max(0, sibs.indexOf(el));
+          el.style.transitionDelay = (idx * 90) + "ms";
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    els.forEach((el) => io.observe(el));
+  }
+
+  initParticles() {
+    if (!this.particles || this.props.enableParticles === false) return;
+    const host = this.particles;
+    for (let i = 0; i < 26; i++) {
+      const d = document.createElement("div");
+      const size = 2 + Math.random() * 3;
+      d.style.cssText = "position:absolute;border-radius:50%;background:" +
+        (i % 3 === 0 ? "#00e1ff" : i % 3 === 1 ? "#7fa5ff" : "#9a46ff") +
+        ";width:" + size + "px;height:" + size + "px;left:" + (Math.random() * 100) + "%;top:" +
+        (Math.random() * 100) + "%;box-shadow:0 0 8px currentColor;animation:stob-float " +
+        (6 + Math.random() * 8) + "s ease-in-out infinite;animation-delay:" + (-Math.random() * 8) + "s;opacity:0.5;";
+      host.appendChild(d);
+    }
+  }
+}
+</script>
+</body>
+</html>
